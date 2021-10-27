@@ -7,6 +7,8 @@ back_log = 5
 buffer_size = 4096
 server = socket(AF_INET, SOCK_STREAM)
 CONTINUE = True
+close_msg = 'Connection to server closed'
+recv_msg = 'Message received'
 
 
 def ser_loop():
@@ -20,7 +22,9 @@ def ser_loop():
                 try:
                     msg = con.recv(buffer_size)
                     if msg.decode('utf-8') == '1':
+                        con.send(close_msg.encode('utf-8'))
                         con.close()
+                    con.send(recv_msg.encode('utf-8'))
                     print('Message: ', msg.decode('utf-8'))
                 except Exception as e:
                     break

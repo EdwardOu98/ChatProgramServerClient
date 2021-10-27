@@ -20,12 +20,13 @@ def ser_loop():
             con, addr = server.accept()
             while 1:
                 try:
-                    msg = con.recv(buffer_size)
-                    if msg.decode('utf-8') == '1':
+                    msg = con.recv(buffer_size).decode('utf-8')
+                    header, body = msg.split('_', 1)
+                    if header == 'EXT':
                         con.send(close_msg.encode('utf-8'))
                         con.close()
                     con.send(recv_msg.encode('utf-8'))
-                    print('Message: ', msg.decode('utf-8'))
+                    print('Message: ', body)
                 except Exception as e:
                     break
         if not CONTINUE:

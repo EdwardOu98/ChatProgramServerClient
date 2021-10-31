@@ -6,7 +6,7 @@ import tkinter.messagebox
 import sys
 
 ip_port = ('127.0.0.1', 8080)
-buffer_size = 4096
+buffer_size = 8192
 p = socket(AF_INET, SOCK_STREAM)
 
 

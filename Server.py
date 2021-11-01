@@ -6,13 +6,16 @@ import json
 
 ip_port = ('127.0.0.1', 8080)
 back_log = 5
-buffer_size = 8192
+buffer_size = 4096
 server = socket(AF_INET, SOCK_STREAM)
 CONTINUE = True
 close_msg = 'EXT_Connection to server closed'
 recv_msg = 'MSR_Message received'
 reg_msg_succ = 'RES_Registration success'
 reg_msg_fail = 'REF_Registration failed! Username already exist'
+login_succ = 'LIS_Successfully login as '
+login_fail_usn = 'LIF_Username not found'
+login_fail_psw = 'LIF_Incorrect password'
 
 
 def ser_loop():
@@ -40,6 +43,15 @@ def ser_loop():
                             con.send(reg_msg_succ.encode('utf-8'))
                         else:
                             con.send(reg_msg_fail.encode('utf-8'))
+                    elif header == 'LGI':
+                        usrname, pswd = body.split('_', 1)
+                        status = login(usrname, pswd)
+                        if status == 1:
+                            con.send(login_succ.encode('utf-8'))
+                        elif status == 0:
+                            con.send(login_fail_usn.encode('utf-8'))
+                        else:
+                            con.send(login_fail_psw.encode('utf-8'))
                     # con.send(recv_msg.encode('utf-8'))
                     print('Message: ', body)
                 except Exception as e:
@@ -65,6 +77,21 @@ def register(usrname, pswd):
     print('Registration completed')
     return True
 
+
+def login(username, password):
+    userinfo = {}
+    file = open('userinfo.json', 'r')
+    userinfo = json.load(file)
+    ex_flag = False
+    for key in userinfo:
+        if key == username:
+            ex_flag = True
+            break
+    if not ex_flag:
+        return 0  # username not found
+    if userinfo[username] == password:
+        return 1  # login is successful
+    return -1   # incorrect password
 
 
 def main():
